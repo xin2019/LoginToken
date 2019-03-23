@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Token_Login</title>
+    <script src="/jquery-3.3.1.min.js"></script>
+    <script src="/jsencrypt.min.js"></script>
+    <script src="Barrett.js"></script>
+    <script src="RSA.js"></script>
+    <script src="BigInt.js"></script>
+</head>
+<body>
+
+<script>
+
+
+    <script >
+    var PK;
+    $(document).ready(function () {
+        $.post("", {}, function (res) {
+            if (data.status == 200) {//加载公钥
+
+                PK = JSON.parse(res).PK;
+
+                // setMaxDigits(130);
+
+
+                $("#button").click(function () {//点击登陆
+                    if (window.localStorage.getItem("state") == null) {//如果是第一次登陆，需要加密用户名密码给后端
+                        $.ajax({
+                            url: "",
+                            type: "post",
+                            data: {
+                                passord: encryptedString(PK,$(password).val()),
+                                username: encryptedString(PK,$(username).val())
+                            },
+                            datatype: "json",
+                            success: function (res) {
+                                var obj = JSON.parse(res);
+                                window.localStorage.setItem("state", "haveToken");
+                                window.localStorage.setItem("token", obj.token);
+                                window.location = res[""];
+                            },
+                            error: function () {
+                                alert("无法传输数据到服务器,请重新加载");
+                            }
+                        });
+                    } else if (window.localStorage.getItem("state") == "haveToken") {//已有token
+                        var token = window.localStorage.getItem("token");
+                        var data = {
+                            token: token
+                        };
+                        $.ajax({
+                            url: "",
+                            type: "post",
+                            data: JSON.parse(data),
+                            datatype: "json",
+                            success: function (res) {
+                                var obj = JSON.parse(res);
+                                if (res[""] != null) {
+                                    window.location = res[""];
+                                } else {
+                                    alert("验证失败");
+                                }
+                            }
+                        });
+                    }
+
+                });
+
+
+            } else {
+                alert("公钥加载失败");
+            }
+        })
+
+
+    });
+
+
+</script>
+
+
+用户名<input type="text" name="username" id="username"><br>
+密码<input type="password" name="password" id="password">
+
+<button id="button" >login</button>
+
+</body>
+</html>
