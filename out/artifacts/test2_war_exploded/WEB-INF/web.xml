@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+    
+    <welcome-file-list>
+        <welcome-file>/View/login.html</welcome-file>
+    </welcome-file-list>
+    
+    <servlet>
+        <servlet-name>SendPublicKey</servlet-name>
+        <servlet-class>Controller.SendPublicKey</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>SendPublicKey</servlet-name>
+        <url-pattern>/SendPublicKey</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CreateToken</servlet-name>
+        <servlet-class>Controller.CreateToken</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>CreateToken</servlet-name>
+        <url-pattern>/CreateToken</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>ValidateToken</servlet-name>
+        <servlet-class>Controller.ValidateToken</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>ValidateToken</servlet-name>
+        <url-pattern>/ValidateToken</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ExitLogin</servlet-name>
+        <servlet-class>Controller.ExitLogin</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ExitLogin</servlet-name>
+        <url-pattern>/ExitLogin</url-pattern>
+    </servlet-mapping>
+</web-app>

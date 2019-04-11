@@ -3,8 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="/jquery-3.3.1.min.js"></script>
+    <script src="/jsencrypt.min.js"></script>
 </head>
 <body>
+
+<script>
+
+    window.onload=function () {
+        var token=localStorage.getItem("token");
+        $("#button").click(function () {
+            $.ajax({
+                url:"ExitLogin",
+                type:"post",
+                datatype:"json",
+                data:{"token":token},
+                success:function (data) {
+                    var obj=JSON.parse(data);
+
+                    localStorage.removeItem("token");
+                    var exitSuccess=obj["exitSuccess"];
+                    var exitFailure=obj["exitFailure"];
+                    if(exitSuccess!=null){
+                        window.location=obj["href"];
+                    }
+                    alert(exitFailure);
+                },
+                error:function () {
+                    alert("退出失败，请重新尝试退出");
+                }
+            });
+        });
+    }
+</script>
+
+
 welcome!
+<button id="button">exit</button>
 </body>
 </html>

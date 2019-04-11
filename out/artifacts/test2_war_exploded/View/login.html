@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Token_Login</title>
+    <script src="/jquery-3.3.1.min.js"></script>
+    <script src="/jsencrypt.min.js"></script>
+    <script src="Barrett.js"></script>
+    <script src="RSA.js"></script>
+    <script src="BigInt.js"></script>
+</head>
+<body>
+
+
+<!--防止ajax重复加载-->
+<script>
+    function prevent_reloading(){
+        var pendingRequests = {};
+        jQuery.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
+            var key = options.url;
+            console.log(key);
+            if (!pendingRequests[key]) {
+                pendingRequests[key] = jqXHR;
+            }else{
+                //jqXHR.abort();    //放弃后触发的提交
+                pendingRequests[key].abort();   // 放弃先触发的提交
+            }
+            var complete = options.complete;
+            options.complete = function(jqXHR, textStatus) {
+                pendingRequests[key] = null;
+                if (jQuery.isFunction(complete)) {
+                    complete.apply(this, arguments);
+                }
+            };
+        });
+    }
+</script>
+
+
+<script>
+    var getXmlHttpRequest = function () {
+        try {
+            return new XMLHttpRequest();
+        } catch (e) {
+            return new ActiveXObject("Microsoft.XMLHTTP");
+        }
+    }
+
+
+    if (window.localStorage.getItem("token") == null) {
+        prevent_reloading();
+        var xhr = getXmlHttpRequest();
+        xhr.open("post", "SendPublicKey", true);
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.status == 200) {
+                var obj = JSON.parse(xhr.responseText);
+                var pk = obj["PK"];
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey(pk);
+
+
+                $("#button").click(function () {
+                    setMaxDigits(130);
+
+                    $.ajax({
+                        url: "CreateToken",
+                        type: "post",
+                        data: {
+                            "username": encrypt.encrypt($('#username').val()),
+                            "password": encrypt.encrypt($('#pass').val())
+                        },
+                        datatype: "json",
+                        success: function (data) {
+                            var obj = JSON.parse(data);
+                            var msg = obj["msg"];
+                            if (msg == null) {
+
+                                var token = obj["token"];
+                                window.localStorage.setItem("token", token);
+                                window.location.href = obj["href"];
+                            } else {
+                                alert(msg);
+                            }
+
+                        },
+                        error: function () {
+                            alert("传回token失败");
+                        }
+                    });
+                });
+
+            } else {
+                alert("加载网页失败");
+            }
+        }
+    } else {
+        window.onload = function () {
+
+            var token = localStorage.getItem("token");
+            console.log(token);
+            $("#button").click(function () {
+                setMaxDigits(130);
+                $.ajax({
+                    url: "ValidateToken",
+                    type: "post",
+                    data: {"token": token},
+                    datatype: "json",
+                    success: function (data) {
+                        var obj = JSON.parse(data);
+                        var msg = obj["msg"];
+                        var expire = obj["expire"];
+                        var token = obj["token"];
+                        if (msg == null) {
+                            if (expire == null) {
+                                if (token != null) {
+
+                                    window.localStorage.setItem("token", token);//更新token
+                                }
+                                window.location = obj["href"];
+                            } else {
+                                window.localStorage.removeItem("token");
+                                alert(expire);
+                            }
+                        } else {
+                            window.localStorage.removeItem("token");
+                            alert(msg);
+                        }
+                    },
+                    error: function () {
+                        alert("发送token失败");
+                    }
+                });
+
+            });
+
+        }
+
+
+    }
+
+</script>
+
+
+用户名<input type="text" id="username"><br>
+密码<input type="password" id="pass">
+
+<button id="button">login</button>
+
+</body>
+</html>
